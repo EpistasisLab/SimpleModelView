@@ -33,6 +33,9 @@ public abstract class SMVviewBase : MonoBehaviour {
     private UIBehaviour uiElement;
     public UIBehaviour UIelement { protected set { uiElement = value; } get { return uiElement; } }
 
+    /// <summary> The SMVstate that this view belongs too </summary>
+    protected SMVstate parent;
+
     // Use this for initialization
     void Start() {
 
@@ -52,7 +55,7 @@ public abstract class SMVviewBase : MonoBehaviour {
 
     /// <summary> Set up everything that's specific to this SMVview type.
     /// This is called during init of the main SMV object. </summary>
-    public abstract void Init();
+    public abstract void Init(SMVstate parent);
 
     //testing
     void PrintVal(object o)
@@ -140,6 +143,7 @@ public abstract class SMVviewBase : MonoBehaviour {
 
     //TODO - better error handling. And return null instead of 0 or "" ?
     //
+    /*
     public virtual float GetValueFloat()
     {
         object val = GetValueAsObject();
@@ -167,9 +171,30 @@ public abstract class SMVviewBase : MonoBehaviour {
         }
         return "";
     }
-
+    */
     //Derived classes must define
     public abstract object GetValueAsObject();
+
+    /// <summary> Listener for all derived classes when value changes via UI.
+    /// It validates the value and updates the parent SMVstate </summary>
+    public void OnValueChangedListener()
+    {
+        //Debug.Log("OnValueChangedListener called");
+        object val = GetValueAsObject();
+        if( ValidateAndParse(ref val))
+        {
+            //Value is valid, and if it's a string it has been parsed into numeric type if appropriate
+            //Update the parent and it will update any other views with same mapping
+            parent.SetValue(val);
+        }
+        else
+        {
+            //It failed, likely because it's a string type and didn't parse into the proper
+            // numeric type, so revert the value in UI and ignore
+            SetValue(parent.GetValueAsObject());
+        }
+    }
+
 }
 
 

@@ -11,10 +11,9 @@ using System;
 public class SMV : MonoBehaviorSingleton<SMV> {
 
     /// <summary>
-    /// Dictionary of mappings and the view(s) they are mapped to, where
-    /// 'view' is a componenet of a UI element
-    /// </summary>
-    private Dictionary<SMVmapping, List<SMVviewBase>> viewDict;
+    /// Array of SMVstates, each of which holds a value/state and the view(s) to which it's mapped
+    /// There will always be one entry for each SMVmapping member.</summary>
+    private SMVstate[] stateArray;
 
 	// Use this for initialization instead of Awake in a MonoBehaviorSingleton object
 	protected override void Initialize () {
@@ -22,17 +21,17 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 	}
 
     /// <summary> Initialize. Go through the scene and find all SMVviewBase components
-    ///  and track them. </summary>
+    ///  and assign them to their respective SMVstate objects </summary>
     void Init()
     {
-        viewDict = new Dictionary<SMVmapping, List<SMVviewBase>>();
-        SMVviewBase[] allViews = Resources.FindObjectsOfTypeAll<SMVviewBase>();
-        foreach(SMVviewBase view in allViews)
+        stateArray = new SMVstate[Enum.GetNames(typeof(SMVmapping)).Length];
+        for(int i = 0; i < stateArray.Length; i++)
         {
-            view.Init();
-            Add(view.mapping, view);
+            stateArray[i] = new SMVstate();
+            stateArray[i].Init((SMVmapping)i);
         }
-        DebugDumpDict();
+            
+        DebugDump();
     }
 
     /// <summary>
@@ -44,10 +43,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <param name="val"></param>
     public void SetValue(SMVmapping mapping, object val)
     {
-        foreach (SMVviewBase view in GetViewsForMapping(mapping))
-        {
-            view.SetValue(val);
-        }
+        stateArray[(int)mapping].SetValue(val);
     }
 
     /// <summary>
@@ -58,6 +54,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <returns></returns>
     private bool VerifyEqualValues(SMVmapping mapping)
     {
+        /* todo
         object prevVal = null;
         foreach (SMVviewBase view in GetViewsForMapping(mapping))
         {
@@ -70,6 +67,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
                 }
             prevVal = obj;
         }
+        */
         return true;
     }
 
@@ -81,41 +79,9 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <returns></returns>
     public float GetValueFloat(SMVmapping mapping)
     {
-        VerifyEqualValues(mapping);
-        return GetViewsForMapping(mapping)[0].GetValueFloat();        
-    }
-
-    /// <summary>
-    /// Add a mapping and SMVviewBase pair to the list
-    /// </summary>
-    /// <param name="mapping"></param>
-    /// <param name="view"></param>
-    void Add(SMVmapping mapping, SMVviewBase view)
-    {
-        List<SMVviewBase> viewsList;
-        if( ! viewDict.TryGetValue(mapping, out viewsList))
-        {
-            List < SMVviewBase > views = new List<SMVviewBase>();
-            views.Add(view);
-            viewDict.Add(mapping, views);
-        }
-        else
-        {
-            //Mapping has already been added, so add new view to the list of views
-            viewsList.Add(view);
-        }
-    }
-	
-    /// <summary>
-    /// For a particular mapping, find all the views it's connected to
-    /// </summary>
-    /// <param name="mapping"></param>
-    /// <returns></returns>
-    List<SMVviewBase> GetViewsForMapping(SMVmapping mapping)
-    {
-        List<SMVviewBase> views = new List<SMVviewBase>();
-        viewDict.TryGetValue(mapping, out views);
-        return views;
+        //???
+        VerifyEqualValues(mapping); 
+        return stateArray[(int)mapping].GetValueFloat();
     }
 
     /// <summary>
@@ -133,24 +99,12 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 
     //public void UpdateMapping
 
-    void DebugDumpDict()
+    void DebugDump()
     {
-        string outStr = "SMV dict debug: \n";
-        foreach (SMVmapping item in Enum.GetValues(typeof(SMVmapping)))
+        Debug.Log("SMV states debug:");
+        foreach (SMVstate state in stateArray)
         {
-            outStr += "item: " + item.ToString() + "\n";
-            List<SMVviewBase> views = GetViewsForMapping(item);
-            if (views == null)
-            {
-                outStr += "  no view entries found\n";
-                continue;
-            }
-            foreach(SMVviewBase view in views)
-            {
-                outStr += view.mapping.ToString() + " mapped to a " + view.SMVType.ToString() + ", with behavior: " + view.UIelement.name + " and parent: " + view.gameObject.name + "\n";
-            }
-            outStr += "---\n";
+            state.DebugDump();
         }
-        Debug.Log(outStr);
     }
 }

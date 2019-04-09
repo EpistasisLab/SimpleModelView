@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 /// <summary>
 /// An SVMview for a Slider element
@@ -9,21 +10,19 @@ using UnityEngine.UI;
 public class SMVViewSlider : SMVviewBase
 {
 
-    public override void Init()
+    public override void Init(SMVstate parent)
     {
+        System.Type T = typeof(Slider);
         //Find the UI element within this components game object
         UIelement = transform.GetComponent<Slider>();
-        ((Slider)UIelement).onValueChanged.AddListener(delegate { OnValueChangedTest(); });
         if (UIelement == null)
             Debug.LogError("uiElement == null");
+        //Add the change-listener from base class
+        (((Slider)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
         smvtype = SMVtypeEnum.slider;
         dataType = typeof(float);
-    }
-
-    public void OnValueChangedTest()
-    {
-        Debug.Log("OnValueChangedTest");
+        this.parent = parent;
     }
 
     public override object GetValueAsObject()
