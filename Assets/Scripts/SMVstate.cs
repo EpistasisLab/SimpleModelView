@@ -33,7 +33,8 @@ public class SMVstate {
     {
         views = new List<SMVviewBase>();
         this.mapping = mapping;
-        bool firstView = true;
+        bool typeIsSet = false;
+        bool foundText = false;
 
         SMVviewBase[] allViews = Resources.FindObjectsOfTypeAll<SMVviewBase>();
         foreach (SMVviewBase view in allViews)
@@ -41,20 +42,34 @@ public class SMVstate {
             if(view.mapping == mapping)
             {
                 view.Init(this);
-                if (firstView)
+                //Special handling for Text elements, which are always string.
+                //Keep track and if no non-Text elements are found, then state type will be string.
+                //Ugly.
+                if(view.SMVType == SMVviewBase.SMVtypeEnum.text)
                 {
-                    dataType = view.DataType;
-                    firstView = false;
+                    foundText = true;
                 }
-                //If a 2nd or later mapping is of a different type, show an error and skip it
-                if(view.DataType != dataType)
+                else
                 {
-                    Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this link's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
-                    continue;
+                    if (!typeIsSet)
+                    {
+                        dataType = view.DataType;
+                        typeIsSet = true;
+                    }
+                    //If a 2nd or later mapping is of a different type, show an error and skip it,
+                    // EXCEPT for Text type (noted and skipped above) which is just for display so works with any type
+                    if (view.DataType != dataType)
+                    {
+                        Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this link's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
+                        continue;
+                    }
                 }
                 views.Add(view);
             }
         }
+        //special handling for state that have only one or more Text elements
+        if (!typeIsSet && foundText)
+            dataType = typeof(string);
     }
 
     public void SetValue(object val)

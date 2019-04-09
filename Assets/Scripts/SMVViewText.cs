@@ -5,32 +5,30 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 
 /// <summary>
-/// An SVMview for a Slider element
+/// An SVMview for a Text element. It's display-only, can't be edited, so simpler than others.
 /// </summary>
-public class SMVViewSlider : SMVviewBase
+public class SMVViewText : SMVviewBase
 {
 
     public override void Init(SMVstate parent)
     {
         //Find the UI element within this components game object
-        UIelement = transform.GetComponent<Slider>();
+        UIelement = transform.GetComponent<Text>();
         if (UIelement == null)
             Debug.LogError("uiElement == null");
-        //Add the change-listener from base class
-        (((Slider)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
-        smvtype = SMVtypeEnum.slider;
-        dataType = typeof(float);
+        smvtype = SMVtypeEnum.text;
+        dataType = typeof(string);
         this.parent = parent;
     }
 
     public override object GetValueAsObject()
     {
-        return ((Slider)UIelement).value;
+        return ((Text)UIelement).text;
     }
 
     protected override void SetValueInternal(object val)
     {
-        ((Slider)UIelement).value = (float) val;
+        ((Text)UIelement).text = val.ToString();
     }
 }

@@ -24,7 +24,7 @@ public abstract class SMVviewBase : MonoBehaviour {
     /// <summary>
     /// True for views that are textual in nature (Text, InputField), and thus can be used to hold
     /// string, float or int values. </summary>
-    public bool IsTextual { get { return SMVType == SMVtypeEnum.text || SMVType == SMVtypeEnum.inputfield; } }
+    public bool IsTextual { get { return SMVType == SMVtypeEnum.inputfield; } }
 
     /// <summary> The name of the mapping we're handling with this view </summary>
     public SMVmapping mapping;
@@ -97,9 +97,14 @@ public abstract class SMVviewBase : MonoBehaviour {
     /// <returns>True on success. False if non-matching types or string could not be parsed to appropriate type for textual-class views.</returns>
     private bool ValidateAndParse(ref object val)
     {
-        if( IsTextual )
+        //If it's a simple Text element, no need to validate since it's display-only, i.e. non-editable.
+        //Any input will just be turned to string
+        if (SMVType == SMVtypeEnum.text)
+            return true;
+
+        if ( IsTextual )
         {
-            //Textural views (Text, InputField) can be set up to have different
+            //Textual views (InputField) can be set up to have different
             // data types. Make sure the type matches here, and if not and it's 
             // a string, try to parse it into proper type.
             if (val.GetType() == this.DataType)
