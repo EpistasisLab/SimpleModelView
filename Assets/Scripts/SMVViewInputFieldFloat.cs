@@ -5,33 +5,34 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 
 /// <summary>
-/// An SVMview for a Slider element
+/// An SVMview for an InputField element used for float values.
 /// </summary>
-public class SMVViewSlider : SMVviewBase
+public class SMVViewInputFieldFloat : SMVviewBase
 {
-
     public override void Init(SMVstate parent)
     {
         //Find the UI element within this components game object
-        UIelement = transform.GetComponent<Slider>();
+        UIelement = transform.GetComponent<InputField>();
         if (UIelement == null)
             Debug.LogError("uiElement == null");
 
         //Add the change-listener from base class
-        (((Slider)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
+        //Always use the EndEdit event so we don't end up with validation errors while typing
+        (((InputField)UIelement).onEndEdit).AddListener(delegate { OnValueChangedListener(); });
 
-        smvtype = SMVtypeEnum.slider;
+        smvtype = SMVtypeEnum.inputFieldFloat;
         dataType = typeof(float);
         this.parent = parent;
     }
 
     public override object GetValueAsObject()
     {
-        return ((Slider)UIelement).value;
+        //Just return the string object, and validation method will handle the parsing
+        return ((InputField)UIelement).text;
     }
 
     protected override void SetValueInternal(object val)
     {
-        ((Slider)UIelement).value = (float) val;
+        ((InputField)UIelement).text = val.ToString();
     }
 }

@@ -10,6 +10,9 @@ using UnityEngine.Events;
 public class SMVViewText : SMVviewBase
 {
 
+    /// <summary> Number of decimal places to show when showing a float value </summary>
+    public int decimalPlaces = 2;
+
     public override void Init(SMVstate parent)
     {
         //Find the UI element within this components game object
@@ -29,6 +32,11 @@ public class SMVViewText : SMVviewBase
 
     protected override void SetValueInternal(object val)
     {
-        ((Text)UIelement).text = val.ToString();
+        string txt;
+        if (val.GetType() == typeof(float))
+            txt = ((float)val).ToString("F"+decimalPlaces.ToString());
+        else
+            txt = val.ToString();
+        ((Text)UIelement).text = txt;
     }
 }

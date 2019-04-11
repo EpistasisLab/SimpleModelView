@@ -7,4 +7,6 @@ using UnityEngine;
 /// Kinda like events.
 /// Add a new one when you have a new model field that you want to map to a view.
 /// </summary>
-public enum SMVmapping { undefined/*always include this*/, RotationSpeed };
+public enum SMVmapping { undefined/*always include this*/, RotationSpeed, TimeLabel, RotatingText, RotatingTextCount };
+
+

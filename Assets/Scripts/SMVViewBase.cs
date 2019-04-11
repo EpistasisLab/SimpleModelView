@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public abstract class SMVviewBase : MonoBehaviour {
 
-    public enum SMVtypeEnum { undefined, toggle, slider, text, inputfield };
+    public enum SMVtypeEnum { undefined, toggle, slider, text, inputFieldString, inputFieldFloat, inputFieldInt };
 
     /// <summary> Internal tracking of type of view/UI element.
     /// Not sure what we'll need this for, other than debugging. </summary>
@@ -22,9 +22,8 @@ public abstract class SMVviewBase : MonoBehaviour {
     public System.Type DataType { get { return dataType; } }
 
     /// <summary>
-    /// True for views that are textual in nature (Text, InputField), and thus can be used to hold
-    /// string, float or int values. </summary>
-    public bool IsTextual { get { return SMVType == SMVtypeEnum.inputfield; } }
+    /// True for views that are textual in nature (InputField), editable, and are holding numeric values/types. </summary>
+    public bool IsTextualNumeric { get { return SMVType == SMVtypeEnum.inputFieldFloat || SMVType == SMVtypeEnum.inputFieldInt; } }
 
     /// <summary> The name of the mapping we're handling with this view </summary>
     public SMVmapping mapping;
@@ -89,7 +88,7 @@ public abstract class SMVviewBase : MonoBehaviour {
     protected abstract void SetValueInternal(object val);
 
     /// <summary>
-    /// Checked the passed value to see that its data type matches that of the view's data type.
+    /// Check the passed value to see that its data type matches that of the view's data type.
     /// For textual-class views, if we get a string for a non-string textual-class view, attempt to parse it into the appropriate
     /// type. On success, change val to the parsed value.
     /// </summary>
@@ -102,17 +101,18 @@ public abstract class SMVviewBase : MonoBehaviour {
         if (SMVType == SMVtypeEnum.text)
             return true;
 
-        if ( IsTextual )
+        if ( IsTextualNumeric )
         {
-            //Textual views (InputField) can be set up to have different
+            //Textual views (InputField types) can be set up to have numeric
             // data types. Make sure the type matches here, and if not and it's 
             // a string, try to parse it into proper type.
             if (val.GetType() == this.DataType)
                 return true;
-            //If we have a string, see if it can be parsed into the right type
+            //If we're passed a string, see if it can be parsed into the right type, and
+            // if so then return the string parsed into new type
             if (val.GetType() == typeof(string))
             {
-                if(val.GetType() == typeof(float))
+                if(DataType == typeof(float))
                 {
                     float newVal;
                     if( float.TryParse(val.ToString(), out newVal ))
@@ -122,7 +122,7 @@ public abstract class SMVviewBase : MonoBehaviour {
                     }
                 }
                 else
-                if (val.GetType() == typeof(int))
+                if (DataType == typeof(int))
                 {
                     int newVal;
                     if (int.TryParse(val.ToString(), out newVal))
@@ -146,37 +146,6 @@ public abstract class SMVviewBase : MonoBehaviour {
         return true;
     }
 
-    //TODO - better error handling. And return null instead of 0 or "" ?
-    //
-    /*
-    public virtual float GetValueFloat()
-    {
-        object val = GetValueAsObject();
-        if( ValidateAndParse(ref val))
-        {
-            return (float)val;
-        }
-        return 0;
-    }
-    public virtual int GetValueInt()
-    {
-        object val = GetValueAsObject();
-        if (ValidateAndParse(ref val))
-        {
-            return (int)val;
-        }
-        return 0;
-    }
-    public virtual string GetValueString()
-    {
-        object val = GetValueAsObject();
-        if (ValidateAndParse(ref val))
-        {
-            return (string)val;
-        }
-        return "";
-    }
-    */
     //Derived classes must define
     public abstract object GetValueAsObject();
 

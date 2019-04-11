@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using System;
+
+[Serializable]
+public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 
 /// <summary>
 /// Simple Model-View class.
 /// </summary>
 public class SMV : MonoBehaviorSingleton<SMV> {
+
+    public OnUpdateEvent onUpdateEvent;
 
     /// <summary>
     /// Array of SMVstates, each of which holds a value/state and the view(s) to which it's mapped
@@ -17,18 +23,31 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 
 	// Use this for initialization instead of Awake in a MonoBehaviorSingleton object
 	protected override void Initialize () {
-        Init();
+        SetupForScene(true);
 	}
 
     /// <summary> Initialize. Go through the scene and find all SMVviewBase components
-    ///  and assign them to their respective SMVstate objects </summary>
-    void Init()
+    ///  and assign them to their respective SMVstate objects.
+    ///  Can be called as needed to reload all the states and mappings if you're making 
+    ///  runtime changes to the UI. 
+    ///  Pass true to set up a new list and new states. Otherwise, states and
+    ///  their values are preserved, but scene is still searched to find UI changes.  
+    ///  </summary>
+    public void SetupForScene(bool initialize = false)
     {
-        stateArray = new SMVstate[Enum.GetNames(typeof(SMVmapping)).Length];
+
+        if( initialize)
+            stateArray = new SMVstate[Enum.GetNames(typeof(SMVmapping)).Length];
+
         for(int i = 0; i < stateArray.Length; i++)
         {
-            stateArray[i] = new SMVstate();
-            stateArray[i].Init((SMVmapping)i);
+            if (initialize)
+            {
+                stateArray[i] = new SMVstate();
+                stateArray[i].Init((SMVmapping)i);
+            }
+            else
+                stateArray[i].SetupMappings();
         }
             
         DebugDump();
@@ -47,31 +66,6 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     }
 
     /// <summary>
-    /// For mappings with 2 or more views, verify that each view holds the same value.
-    /// Returns true if yes, otherwise print error message and return false.
-    /// </summary>
-    /// <param name="mapping"></param>
-    /// <returns></returns>
-    private bool VerifyEqualValues(SMVmapping mapping)
-    {
-        /* todo
-        object prevVal = null;
-        foreach (SMVviewBase view in GetViewsForMapping(mapping))
-        {
-            object obj = view.GetValueAsObject();
-            if( prevVal != null)
-                if( prevVal != obj)
-                {
-                    Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + "Views don't all have equal value");
-                    return false;
-                }
-            prevVal = obj;
-        }
-        */
-        return true;
-    }
-
-    /// <summary>
     /// Get the value for the passed mapping. If more than one view is mapped, then
     ///  value is returned from only the first.
     /// </summary>
@@ -79,29 +73,40 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <returns></returns>
     public float GetValueFloat(SMVmapping mapping)
     {
-        //???
-        VerifyEqualValues(mapping); 
         return stateArray[(int)mapping].GetValueFloat();
+    }
+    public int GetValueInt(SMVmapping mapping)
+    {
+        return stateArray[(int)mapping].GetValueInt();
+    }
+    public string GetValueString(SMVmapping mapping)
+    {
+        return stateArray[(int)mapping].GetValueString();
+    }
+
+    public void MappingUpdated(SMVmapping mapping)
+    {
+        onUpdateEvent.Invoke(mapping);
     }
 
     /// <summary>
-    /// Handle for UI events. All UI elements that include a SMVviewBase component should call this
-    /// </summary>
-    /// <param name="view"></param>
-    public void OnHandleViewUpdate(SMVviewBase view)
+    /// Get an object of type with default value.
+    /// Returns null for non-value-types </summary>
+    public object GetDefault(Type type)
     {
+        if (type == null)
+            return null;
 
+        if (type.IsValueType)
+        {
+            return Activator.CreateInstance(type);
+        }
+        return null;
     }
-
-    private void Update()
-    {
-    }
-
-    //public void UpdateMapping
 
     void DebugDump()
     {
-        Debug.Log("SMV states debug:");
+        Debug.Log("====== SMV states debug ======");
         foreach (SMVstate state in stateArray)
         {
             state.DebugDump();
