@@ -9,7 +9,7 @@ using UnityEngine.Events;
 /// </summary>
 public class SMVViewInputFieldFloat : SMVviewBase
 {
-    public override void Init(SMVstate parent)
+    protected override void InitDerived()
     {
         //Find the UI element within this components game object
         UIelement = transform.GetComponent<InputField>();
@@ -22,7 +22,6 @@ public class SMVViewInputFieldFloat : SMVviewBase
 
         smvtype = SMVtypeEnum.inputFieldFloat;
         dataType = typeof(float);
-        this.parent = parent;
     }
 
     public override object GetValueAsObject()

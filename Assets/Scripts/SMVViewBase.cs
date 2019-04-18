@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public abstract class SMVviewBase : MonoBehaviour {
 
-    public enum SMVtypeEnum { undefined, toggle, slider, text, inputFieldString, inputFieldFloat, inputFieldInt };
+    public enum SMVtypeEnum { undefined, toggle, slider, text, inputFieldString, inputFieldFloat, inputFieldInt, textMeshProWorldSpace, textMeshProUGUI };
 
     /// <summary> Internal tracking of type of view/UI element.
     /// Not sure what we'll need this for, other than debugging. </summary>
@@ -23,7 +23,10 @@ public abstract class SMVviewBase : MonoBehaviour {
 
     /// <summary>
     /// True for views that are textual in nature (InputField), editable, and are holding numeric values/types. </summary>
-    public bool IsTextualNumeric { get { return SMVType == SMVtypeEnum.inputFieldFloat || SMVType == SMVtypeEnum.inputFieldInt; } }
+    public bool IsEditableTextualNumeric { get { return SMVType == SMVtypeEnum.inputFieldFloat || SMVType == SMVtypeEnum.inputFieldInt; } }
+
+    /// <summary> True for text elements that are for display only. They can accept any type that can has ToString(). </summary>
+    public bool IsUneditableText { get { return SMVType == SMVtypeEnum.text || SMVType == SMVtypeEnum.textMeshProWorldSpace || SMVType == SMVtypeEnum.textMeshProUGUI; } }
 
     /// <summary> The name of the mapping we're handling with this view </summary>
     public SMVmapping mapping;
@@ -33,28 +36,36 @@ public abstract class SMVviewBase : MonoBehaviour {
     public UIBehaviour UIelement { protected set { uiElement = value; } get { return uiElement; } }
 
     /// <summary> The SMVstate that this view belongs too </summary>
-    protected SMVstate parent;
+    protected SMVstate parent = null;
+
+    bool hasBeenInited;
+
+    void Awake()
+    {
+        hasBeenInited = false;
+    }
 
     // Use this for initialization
     void Start() {
 
-        //testing
-        /*
-        Debug.Log("----");
-        float f = 344.5f;
-        PrintVal(123);
-        PrintVal(f);
-        PrintVal("a string");
-        Debug.Log("PrintVal from GetValue ");
-        PrintVal(GetValue());
-        Debug.Log("cast GetValue() to float: ");
-        float ret = (float)GetValueUntyped();
-        */
+    }
+
+    /// <summary> Init this view </summary>
+    /// <param name="parent"></param>
+    public void Init(SMVstate parent)
+    {
+        //Always set this since it can change if states are reloaded for a scene
+        this.parent = parent;
+        //Only init once!
+        if (hasBeenInited)
+            return;
+        InitDerived();
+        hasBeenInited = true;
     }
 
     /// <summary> Set up everything that's specific to this SMVview type.
     /// This is called during init of the main SMV object. </summary>
-    public abstract void Init(SMVstate parent);
+    protected abstract void InitDerived();
 
     //testing
     void PrintVal(object o)
@@ -98,10 +109,10 @@ public abstract class SMVviewBase : MonoBehaviour {
     {
         //If it's a simple Text element, no need to validate since it's display-only, i.e. non-editable.
         //Any input will just be turned to string
-        if (SMVType == SMVtypeEnum.text)
+        if (SMVType == SMVtypeEnum.text || SMVType == SMVtypeEnum.textMeshProWorldSpace)
             return true;
 
-        if ( IsTextualNumeric )
+        if ( IsEditableTextualNumeric )
         {
             //Textual views (InputField types) can be set up to have numeric
             // data types. Make sure the type matches here, and if not and it's 
@@ -139,7 +150,7 @@ public abstract class SMVviewBase : MonoBehaviour {
 
         if (val.GetType() != this.DataType)
         {
-            Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match or can't be converted to the view's type of " + DataType.Name + " for view " + SMVType.ToString() + " in game object " + UIelement.transform.parent.name);
+            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match or can't be converted to the view's type of " + DataType.Name + " for view " + SMVType.ToString() + " in game object " + UIelement.gameObject.name);
             return false;
         }
 
@@ -153,9 +164,9 @@ public abstract class SMVviewBase : MonoBehaviour {
     /// It validates the value and updates the parent SMVstate </summary>
     public void OnValueChangedListener()
     {
-        //Debug.Log("OnValueChangedListener called");
+        //Debug.Log("+ + + SMVViewBase OnValueChangedListener called within view type " + SMVType.ToString() + " and mapping " + mapping.ToString() + " - Current state value before change is " + parent.GetValueAsObject().ToString());
         object val = GetValueAsObject();
-        if( ValidateAndParse(ref val))
+        if ( ValidateAndParse(ref val))
         {
             //Value is valid, and if it's a string it has been parsed into numeric type if appropriate
             //Update the parent and it will update any other views with same mapping

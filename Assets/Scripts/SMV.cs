@@ -14,7 +14,12 @@ public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 /// </summary>
 public class SMV : MonoBehaviorSingleton<SMV> {
 
+    /// <summary> User should set this to a method in their own code to handle when
+    ///  updates to a state happen, either from logic or UI/view side of things. </summary>
     public OnUpdateEvent onUpdateEvent;
+
+    /// <summary> Flag to output some debug info, like the state and view-mapping info after initilization  </summary>
+    public bool doDebugLogging = false;
 
     /// <summary>
     /// Array of SMVstates, each of which holds a value/state and the view(s) to which it's mapped
@@ -30,7 +35,8 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     ///  and assign them to their respective SMVstate objects.
     ///  Can be called as needed to reload all the states and mappings if you're making 
     ///  runtime changes to the UI. 
-    ///  Pass true to set up a new list and new states. Otherwise, states and
+    ///  Pass true to set up a new list and new states - typically this will only
+    ///  be done once per scene. Otherwise, states and
     ///  their values are preserved, but scene is still searched to find UI changes.  
     ///  </summary>
     public void SetupForScene(bool initialize = false)
@@ -49,8 +55,9 @@ public class SMV : MonoBehaviorSingleton<SMV> {
             else
                 stateArray[i].SetupMappings();
         }
-            
-        DebugDump();
+        
+        if(doDebugLogging)
+            DebugDump();
     }
 
     /// <summary>
@@ -84,7 +91,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
         return stateArray[(int)mapping].GetValueString();
     }
 
-    public void MappingUpdated(SMVmapping mapping)
+    public void MappingValueUpdated(SMVmapping mapping)
     {
         onUpdateEvent.Invoke(mapping);
     }
@@ -104,7 +111,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
         return null;
     }
 
-    void DebugDump()
+    public void DebugDump()
     {
         Debug.Log("====== SMV states debug ======");
         foreach (SMVstate state in stateArray)

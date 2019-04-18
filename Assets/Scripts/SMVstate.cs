@@ -27,6 +27,11 @@ public class SMVstate {
     /// <summary> The current value </summary>
     private object value;
 
+    /// <summary> Flag to track if we've warned about get or set value attempts that
+    /// fail because there are no views mapped. </summary>
+    private bool haveWarnedForGetValueNoMapping = false;
+    private bool haveWarnedForSetValueNoMapping = false;
+
 	// ctor
 	public SMVstate()
     {
@@ -41,6 +46,8 @@ public class SMVstate {
     {
         this.mapping = mapping;
         SetupMappings();
+        //if(mapping != SMVmapping.undefined)
+        //    SetValue(SMV.Instance.GetDefault(DataType));
         value = SMV.Instance.GetDefault(DataType);
     }
 
@@ -58,65 +65,142 @@ public class SMVstate {
         SMVviewBase[] allViews = Resources.FindObjectsOfTypeAll<SMVviewBase>();
         foreach (SMVviewBase view in allViews)
         {
-            if(view.mapping == mapping)
+
+            if (view.mapping != mapping)
+                continue;
+
+            if (view.mapping == SMVmapping.undefined)
             {
-                view.Init(this);
-                //Special handling for Text elements, which are always string.
-                //Keep track and if no non-Text elements are found, then state type will be string.
-                //Ugly.
-                if(view.SMVType == SMVviewBase.SMVtypeEnum.text)
-                {
-                    foundText = true;
-                }
-                else
-                {
-                    if (!typeIsSet)
-                    {
-                        dataType = view.DataType;
-                        typeIsSet = true;
-                    }
-                    //If a 2nd or later mapping is of a different type, show an error and skip it,
-                    // EXCEPT for Text type (noted and skipped above) which is just for display so works with any type
-                    if (view.DataType != dataType)
-                    {
-                        Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this link's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
-                        continue;
-                    }
-                }
-                //Add this view to the list
-                views.Add(view);
+                Debug.LogError("Tried to assign a view of undefined type, with instance ID " + view.GetInstanceID() + " and parent " + view.gameObject.name + ". Make sure view has mapping assigned in the editor. Skipping.");
+                continue;
             }
+
+            //Check that the view is part of a canvas. If not, skip it.
+/*            Canvas canvas = view.GetComponentInParent<Canvas>();
+            if( canvas == null)
+            {
+                Debug.LogWarning("SMVstate.SetupMappings: found an SMVView that's not within a Canvas object. Skipping. Mapping: " + view.mapping + " Parent: " + view.gameObject.name);
+                continue;
+            }
+            */
+            //We've got a match
+            view.Init(this);
+
+            //Special handling for Text elements, which are always string, even when used to show numeric values.
+            //Keep track and if no non-Text elements are found, then state type will be string.
+            //Ugly.
+            if(view.SMVType == SMVviewBase.SMVtypeEnum.text)
+            {
+                foundText = true;
+            }
+            else
+            {
+                if (!typeIsSet)
+                {
+                    dataType = view.DataType;
+                    typeIsSet = true;
+                }
+                //If a 2nd or later mapping is of a different type, show an error and skip it,
+                // EXCEPT for Text type (noted and skipped above) which is just for display so works with any type
+                if (view.DataType != dataType)
+                {
+                    Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this state's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
+                    continue;
+                }
+            }
+            //Add this view to the list
+            views.Add(view);
         }
         //special handling when there's only Text elements
         if (!typeIsSet && foundText)
             dataType = typeof(string);
+
+        //Warning if we didn't find any views for this state
+        if (Count == 0 && Mapping != SMVmapping.undefined)
+        {
+            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views found for this state with mapping " + Mapping);
+            return;
+        }
     }
 
+    /// <summary>
+    /// Compare the passed object value with the state's value.
+    /// Return true/false for equal/not-equal
+    /// </summary>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    private bool IsEqual(object val)
+    {
+        //NOTE - must be better way to handle variable typing. Should switch to generics?
+        if(DataType == typeof(float))
+        {
+            return (float)value == (float)val;
+        }
+        if(DataType == typeof(int))
+        {
+            return (int)value == (int)val;
+        }
+        if(DataType == typeof(string))
+        {
+            //Convert val to string so we can take in any type for
+            // text UI elements that are read-only.
+            return (string)value == val.ToString();
+        }
+        Debug.LogError("IsEqual: val type '" + val.GetType().Name + "' not matched for state date type of '" + DataType.Name + "'");
+        return false;
+    }
+
+    /// <summary>
+    /// Set the value for this state.
+    /// Gets called both from logic side and from UI/view side.
+    /// Updates any mapped views and calls the main update handler,
+    ///  BUT only if value has changed.
+    /// </summary>
+    /// <param name="val"></param>
     public void SetValue(object val)
     {
-        if( Count == 0)
+        if (Count == 0)
         {
-            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views mapped for this state.");
+            if(!haveWarnedForSetValueNoMapping)
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried setting value but no views mapped for this state with mapping " + Mapping + ". You will not receive further warnings.");
+            haveWarnedForSetValueNoMapping = true;
             return;
         }
 
+        //Is the passed value different than what's already set?
+        //We want to avoid calling the UI update and update handler unnecessarily
+        if ( IsEqual(val) )
+            return;
+
+        
         if (val.GetType() != this.DataType)
         {
-            Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match this state's type of " + DataType.Name + ", for mapping " + mapping.ToString() +". Skipping setting of value.");
-            return;
+            if( this.DataType == typeof(string))
+            {
+                //For string types, like uneditable text elements, we'll take
+                // any type and just turn it into a string
+                value = val.ToString();
+            }
+            else
+            {
+                Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match this state's type of " + DataType.Name + ", for mapping " + mapping.ToString() + ". Skipping setting of value.");
+                return;
+            }
+        }
+        else
+        {
+            //Store the actual value
+            value = val;
         }
 
-        //Store the actual value
-        value = val;
-        
         //Update each UI element
-        foreach( SMVviewBase view in views)
+        foreach ( SMVviewBase view in views)
         {
-            view.SetValue(val);
+            view.SetValue(value);
         }
 
         //Invoke event for the optional update handler
-        SMV.Instance.MappingUpdated(mapping);
+        SMV.Instance.MappingValueUpdated(mapping);
     }
 
     /// <summary> Return the current value as generic object type </summary>
@@ -129,51 +213,61 @@ public class SMVstate {
     {
         if (Count == 0)
         {
-            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views mapped for this state.");
-            return 0f;
-        }
-
-        float test = 0f;
-        if (ValidateDataType(test))
-        {
-            return (float)value;
+            if(!haveWarnedForGetValueNoMapping)
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
+            haveWarnedForGetValueNoMapping = true;
         }
         else
-            return (float)SMV.Instance.GetDefault(DataType);
+        {
+            float test = 0f;
+            if (ValidateDataType(test))
+            {
+                return (float)value;
+            }
+
+        }
+
+        return (float)SMV.Instance.GetDefault(DataType);
     }
 
     public int GetValueInt()
     {
         if (Count == 0)
         {
-            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views mapped for this state.");
-            return 0;
-        }
-
-        int test = 0;
-        if (ValidateDataType(test))
-        {
-            return (int)value;
+            if (!haveWarnedForGetValueNoMapping)
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
+            haveWarnedForGetValueNoMapping = true;
         }
         else
-            return (int)SMV.Instance.GetDefault(DataType);
+        {
+            int test = 0;
+            if (ValidateDataType(test))
+            {
+                return (int)value;
+            }
+        }
+
+        return (int)SMV.Instance.GetDefault(DataType);
     }
 
     public string GetValueString()
     {
         if (Count == 0)
         {
-            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views mapped for this state.");
-            return "";
-        }
-
-        string test = "";
-        if (ValidateDataType(test))
-        {
-            return (string)value;
+            if (!haveWarnedForGetValueNoMapping)
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
+            haveWarnedForGetValueNoMapping = true;
         }
         else
-            return (string)SMV.Instance.GetDefault(DataType);
+        {
+            string test = "";
+            if (ValidateDataType(test))
+            {
+                return (string)value;
+            }
+        }
+
+        return (string)SMV.Instance.GetDefault(DataType);
     }
 
     private bool ValidateDataType(object val)
@@ -197,7 +291,7 @@ public class SMVstate {
 
         foreach ( SMVviewBase view in views)
         {
-            Debug.Log("  " + view.mapping.ToString() + " mapped to SMVtype " + view.SMVType.ToString() + ", with behavior: " + view.UIelement.GetType() + " in gameobject: " + view.gameObject.name + "\n");
+            Debug.Log("Mapping  " + view.mapping.ToString() + " mapped to SMVtype " + view.SMVType.ToString() + ", with Instance ID " + view.GetInstanceID() + ", with behavior: " + view.UIelement.GetType() + " in gameobject: " + view.gameObject.name + "\n");
         }
     }
 }

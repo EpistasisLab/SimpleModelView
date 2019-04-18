@@ -9,7 +9,7 @@ using UnityEngine.Events;
 /// </summary>
 public class SMVViewInputFieldInt : SMVviewBase
 {
-    public override void Init(SMVstate parent)
+    protected override void InitDerived()
     {
         //Find the UI element within this components game object
         UIelement = transform.GetComponent<InputField>();
@@ -22,7 +22,6 @@ public class SMVViewInputFieldInt : SMVviewBase
 
         smvtype = SMVtypeEnum.inputFieldInt;
         dataType = typeof(int);
-        this.parent = parent;
     }
 
     public override object GetValueAsObject()

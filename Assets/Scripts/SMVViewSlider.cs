@@ -10,7 +10,7 @@ using UnityEngine.Events;
 public class SMVViewSlider : SMVviewBase
 {
 
-    public override void Init(SMVstate parent)
+    protected override void InitDerived()
     {
         //Find the UI element within this components game object
         UIelement = transform.GetComponent<Slider>();
@@ -22,7 +22,6 @@ public class SMVViewSlider : SMVviewBase
 
         smvtype = SMVtypeEnum.slider;
         dataType = typeof(float);
-        this.parent = parent;
     }
 
     public override object GetValueAsObject()

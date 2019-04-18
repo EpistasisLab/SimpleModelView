@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Main : MonoBehaviour {
+public class ExampleMain : MonoBehaviour {
 
     public GameObject rotatingTextPrefab;
 
     private GameObject[] rotatingTextObjects;
 
+
+    //////////////////////////////////////////////////
+    // Properties to get/set values using SMV
+    //
     public float RotSpeed
     {
         set { SMV.Instance.SetValue(SMVmapping.RotationSpeed, value);  }
@@ -23,25 +27,44 @@ public class Main : MonoBehaviour {
 
     public int RotatingTextCount
     {
-        set
-        {
-            SMV.Instance.SetValue(SMVmapping.RotatingTextCount, value);
-            SetupRotatingTextObjects();
-        }
+        set { SMV.Instance.SetValue(SMVmapping.RotatingTextCount, value); }
         get { return SMV.Instance.GetValueInt(SMVmapping.RotatingTextCount); }
     }
 
-    public string TimeLabel
+    public float TimeElapsed
     {
         set { SMV.Instance.SetValue(SMVmapping.TimeLabel, value); }
-        get { return SMV.Instance.GetValueString(SMVmapping.TimeLabel); }
+        get { return SMV.Instance.GetValueFloat(SMVmapping.TimeLabel); }
     }
 
+    //////////////////////////////////////////////////
+    // Event handler for SMV OnUpdate events. 
+    //
+    /// <summary> Event handler that gets called whenever an SMV-handled value is changed,
+    /// whether via UI element or directly from code via SetValue().
+    /// This handler must be assigned once to the event in the SMV object in editor.
+    /// </summary>
+    public void OnSVMUpdate(SMVmapping mapping)
+    {
+        if(mapping != SMVmapping.TimeLabel)
+            Debug.Log("*** OnSVMUpdate called with mapping " + mapping.ToString());
+
+        switch ((int)mapping)
+        {
+            case (int)SMVmapping.RotatingTextCount:
+                SetupRotatingTextObjects();
+           
+                break;
+            default:
+                break;
+        }
+    }
+    
     private float startTime;
 
 	// Use this for initialization
 	void Start () {
-        startTime = Time.time;
+        startTime = UnityEngine.Time.time;
         rotatingTextObjects = new GameObject[0];
         Preset1();
 	}
@@ -49,34 +72,14 @@ public class Main : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         //Use rotation speed mapping to set rotation position
-        float phase = (Time.time * SMV.Instance.GetValueFloat(SMVmapping.RotationSpeed)) % 1;
+        float phase = (UnityEngine.Time.time * SMV.Instance.GetValueFloat(SMVmapping.RotationSpeed)) % 1;
         foreach (GameObject txt in rotatingTextObjects)
         {
             txt.transform.rotation = Quaternion.Euler(0, 360 * (phase + 0.2f), 0);
         }
 
         //Update the time label mapping with current time
-        string time = "Elapsed: " + (Time.time - startTime).ToString("F1");
-        TimeLabel = time;
-	}
-
-    /// <summary> Event handler that gets called whenever an SMV-handled value is changed,
-    /// whether via UI element or directly from code via SetValue().
-    /// This handler gets assigned to the event in the SMV object in editor.
-    /// </summary>
-    /// <param name="mapping"></param>
-    public void OnSVMUpdate(SMVmapping mapping)
-    {
-        //Debug.Log("*** got mapping " + mapping.ToString());
-
-        switch ((int)mapping)
-        {
-            case (int)SMVmapping.RotatingTextCount:
-                SetupRotatingTextObjects();
-                break;
-            default:
-                break;
-        }
+        TimeElapsed = Time.time - startTime;
     }
 
     //Instantiate the rotating text objects, using the current count value,
@@ -84,11 +87,26 @@ public class Main : MonoBehaviour {
     public void SetupRotatingTextObjects()
     {
         Canvas canvas = FindObjectOfType<Canvas>();
+
+        //destory old ones
+        for (int i = 0; i < rotatingTextObjects.Length; i++)
+        {
+            if (rotatingTextObjects[i] != null)
+            {
+                //NOTE - Unity docs say not to use DestoryImmediate outside of editor scripts.
+                //I'm using here for expediency, and it's working.
+                GameObject.DestroyImmediate(rotatingTextObjects[i]);
+                rotatingTextObjects[i] = null;
+            }
+        }
+
+        //new ones
         rotatingTextObjects = new GameObject[RotatingTextCount];
-        for(int i=0; i < RotatingTextCount; i++)
+        for(int i=0; i < rotatingTextObjects.Length; i++)
         {
             rotatingTextObjects[i] = Instantiate(rotatingTextPrefab, canvas.transform);
-            rotatingTextObjects[i].transform.position = rotatingTextObjects[i].transform.position + new Vector3(i * 30, i * 30, 0);
+
+            rotatingTextObjects[i].transform.position = rotatingTextObjects[i].transform.position + new Vector3(i * 100, i * 100, i * 100);
         }
 
         //Tell the manager to query the scene and rebuild the list

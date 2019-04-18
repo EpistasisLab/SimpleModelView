@@ -18,7 +18,7 @@ public class SMVViewInputFieldString : SMVviewBase
     /// </summary>
     public UpdateMode updateMode = UpdateMode.EndEdit;
 
-    public override void Init(SMVstate parent)
+    protected override void InitDerived()
     {
         //Find the UI element within this components game object
         UIelement = transform.GetComponent<InputField>();
@@ -33,7 +33,6 @@ public class SMVViewInputFieldString : SMVviewBase
 
         smvtype = SMVtypeEnum.inputFieldString;
         dataType = typeof(string);
-        this.parent = parent;
     }
 
     public override object GetValueAsObject()
