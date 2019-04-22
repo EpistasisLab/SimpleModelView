@@ -6,10 +6,10 @@ using UnityEngine.Events;
 using TMPro;
 
 /// <summary>
-/// An SVMview for a world-view TextMeshPro (for world-space 3D text, different than TextMeshProUGUI) element. It's display-only, can't be edited, so simpler than others.
+/// An SVMview for a UI TextMeshPro (for UI text in a canvas, different than TextMeshProWV for world-view) element. It's display-only, can't be edited, so simpler than others.
 /// It can accept any type that has ToString() method, and has decimal formatting option for floats.
 /// </summary>
-public class SMVViewTextMeshProWV : SMVviewBase
+public class SMVViewTextMeshProUGUI : SMVviewBase
 {
 
     /// <summary> Number of decimal places to show when showing a float value </summary>
@@ -25,7 +25,7 @@ public class SMVViewTextMeshProWV : SMVviewBase
     protected override void InitDerived()
     {
         //Find the UI element within this components game object
-        UIelement = transform.GetComponent<TextMeshPro>();
+        UIelement = transform.GetComponent<TextMeshProUGUI>();
         if (UIelement == null)
             Debug.LogError(this.GetType().Name + "." + System.Reflection.MethodBase.GetCurrentMethod().Name + ": uiElement == null");
 
@@ -35,7 +35,7 @@ public class SMVViewTextMeshProWV : SMVviewBase
 
     public override object GetValueAsObject()
     {
-        return ((TextMeshPro)UIelement).text;
+        return ((TextMeshProUGUI)UIelement).text;
     }
 
     protected override void SetValueInternal(object val)
@@ -45,6 +45,6 @@ public class SMVViewTextMeshProWV : SMVviewBase
             txt = ((float)val).ToString("F"+decimalPlaces.ToString());
         else
             txt = val.ToString();
-        ((TextMeshPro)UIelement).text = prefix + txt + postfix;
+        ((TextMeshProUGUI)UIelement).text = prefix + txt + postfix;
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 /// <summary>
 /// An SVMview for a Text element. It's display-only, can't be edited, so simpler than others.
+/// It can accept any type that has ToString() method, and has decimal formatting option for floats.
 /// </summary>
 public class SMVViewText : SMVviewBase
 {
@@ -15,6 +16,9 @@ public class SMVViewText : SMVviewBase
 
     /// <summary> A string prefix added to begin of whatever string is assigned to this </summary>
     public string prefix = "";
+
+    /// <summary> A string postfix added to end of whatever string is assigned to this </summary>
+    public string postfix = "";
 
     protected override void InitDerived()
     {
@@ -39,6 +43,6 @@ public class SMVViewText : SMVviewBase
             txt = ((float)val).ToString("F"+decimalPlaces.ToString());
         else
             txt = val.ToString();
-        ((Text)UIelement).text = prefix + txt;
+        ((Text)UIelement).text = prefix + txt + postfix;
     }
 }

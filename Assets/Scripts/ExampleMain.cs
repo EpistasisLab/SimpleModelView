@@ -37,6 +37,12 @@ public class ExampleMain : MonoBehaviour {
         get { return SMV.Instance.GetValueFloat(SMVmapping.TimeLabel); }
     }
 
+    public bool TimeElapsedDoUpdate
+    {
+        set { SMV.Instance.SetValue(SMVmapping.TimeLabelUpdate, value); }
+        get { return SMV.Instance.GetValueBool(SMVmapping.TimeLabelUpdate);  }
+    }
+
     //////////////////////////////////////////////////
     // Event handler for SMV OnUpdate events. 
     //
@@ -46,6 +52,7 @@ public class ExampleMain : MonoBehaviour {
     /// </summary>
     public void OnSVMUpdate(SMVmapping mapping)
     {
+        //Log when we get an event for demo purposes, but skipping the time update since they're constant
         if(mapping != SMVmapping.TimeLabel)
             Debug.Log("*** OnSVMUpdate called with mapping " + mapping.ToString());
 
@@ -79,6 +86,7 @@ public class ExampleMain : MonoBehaviour {
         }
 
         //Update the time label mapping with current time
+        
         TimeElapsed = Time.time - startTime;
     }
 
@@ -116,18 +124,19 @@ public class ExampleMain : MonoBehaviour {
 
     public void Preset1()
     {
-        LoadPreset(0.5f, "Hello World!", 1);
+        LoadPreset(0.5f, "Hello World!", 1, true);
     }
 
     public void Preset2()
     {
-        LoadPreset(1.5f, "Faster Faster Faster!", 5);
+        LoadPreset(1.5f, "Faster Faster Faster!", 5, false);
     }
 
-    private void LoadPreset(float rotSpeed, string rotText, int rotTextCount)
+    private void LoadPreset(float rotSpeed, string rotText, int rotTextCount, bool showTimeUpdate)
     {
         RotSpeed = rotSpeed;
         RotatingText = rotText;
         RotatingTextCount = rotTextCount;
+        TimeElapsedDoUpdate = showTimeUpdate;
     }
 }

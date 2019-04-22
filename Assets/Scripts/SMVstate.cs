@@ -86,10 +86,10 @@ public class SMVstate {
             //We've got a match
             view.Init(this);
 
-            //Special handling for Text elements, which are always string, even when used to show numeric values.
+            //Special handling for noneditable text elements, which are always string, even when used to show numeric values.
             //Keep track and if no non-Text elements are found, then state type will be string.
             //Ugly.
-            if(view.SMVType == SMVviewBase.SMVtypeEnum.text)
+            if(view.IsUneditableText)
             {
                 foundText = true;
             }
@@ -146,6 +146,10 @@ public class SMVstate {
             // text UI elements that are read-only.
             return (string)value == val.ToString();
         }
+        if(DataType == typeof(bool))
+        {
+            return (bool)value == (bool)val;
+        }
         Debug.LogError("IsEqual: val type '" + val.GetType().Name + "' not matched for state date type of '" + DataType.Name + "'");
         return false;
     }
@@ -178,7 +182,8 @@ public class SMVstate {
             if( this.DataType == typeof(string))
             {
                 //For string types, like uneditable text elements, we'll take
-                // any type and just turn it into a string
+                // any type and just turn it into a string in the UI.
+                // But store as a string here.
                 value = val.ToString();
             }
             else
@@ -196,7 +201,9 @@ public class SMVstate {
         //Update each UI element
         foreach ( SMVviewBase view in views)
         {
-            view.SetValue(value);
+            //Pass the orig input val (i.e. not converted to a string), so that
+            // uneditable text elements can receive numeric types and do formatting during conversion
+            view.SetValue(val);
         }
 
         //Invoke event for the optional update handler
@@ -209,15 +216,21 @@ public class SMVstate {
         return value;
     }
 
-    public float GetValueFloat()
+    private bool CheckForMapping()
     {
         if (Count == 0)
         {
-            if(!haveWarnedForGetValueNoMapping)
+            if (!haveWarnedForGetValueNoMapping)
                 Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
             haveWarnedForGetValueNoMapping = true;
+            return false;
         }
-        else
+        return true;
+    }
+
+    public float GetValueFloat()
+    {
+        if (CheckForMapping())
         {
             float test = 0f;
             if (ValidateDataType(test))
@@ -226,19 +239,12 @@ public class SMVstate {
             }
 
         }
-
         return (float)SMV.Instance.GetDefault(DataType);
     }
 
     public int GetValueInt()
     {
-        if (Count == 0)
-        {
-            if (!haveWarnedForGetValueNoMapping)
-                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
-            haveWarnedForGetValueNoMapping = true;
-        }
-        else
+        if (CheckForMapping())
         {
             int test = 0;
             if (ValidateDataType(test))
@@ -252,13 +258,7 @@ public class SMVstate {
 
     public string GetValueString()
     {
-        if (Count == 0)
-        {
-            if (!haveWarnedForGetValueNoMapping)
-                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
-            haveWarnedForGetValueNoMapping = true;
-        }
-        else
+        if (CheckForMapping())
         {
             string test = "";
             if (ValidateDataType(test))
@@ -268,6 +268,20 @@ public class SMVstate {
         }
 
         return (string)SMV.Instance.GetDefault(DataType);
+    }
+
+    public bool GetValueBool()
+    {
+        if (CheckForMapping())
+        {
+            string test = "";
+            if (ValidateDataType(test))
+            {
+                return (bool)value;
+            }
+        }
+
+        return (bool)SMV.Instance.GetDefault(DataType);
     }
 
     private bool ValidateDataType(object val)

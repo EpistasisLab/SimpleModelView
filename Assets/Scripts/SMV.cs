@@ -90,7 +90,14 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     {
         return stateArray[(int)mapping].GetValueString();
     }
+    public bool GetValueBool(SMVmapping mapping)
+    {
+        return stateArray[(int)mapping].GetValueBool();
+    }
 
+    /// <summary> Called from states when their value has changed, either from UI or from call from app logic.
+    /// Generate an event that's picked up by user's code. </summary>
+    /// <param name="mapping"></param>
     public void MappingValueUpdated(SMVmapping mapping)
     {
         onUpdateEvent.Invoke(mapping);
