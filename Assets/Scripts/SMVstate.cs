@@ -232,8 +232,7 @@ public class SMVstate {
     {
         if (CheckForMapping())
         {
-            float test = 0f;
-            if (ValidateDataType(test))
+            if (ValidateDataType(typeof(float)))
             {
                 return (float)value;
             }
@@ -246,8 +245,7 @@ public class SMVstate {
     {
         if (CheckForMapping())
         {
-            int test = 0;
-            if (ValidateDataType(test))
+            if (ValidateDataType(typeof(int)))
             {
                 return (int)value;
             }
@@ -260,8 +258,7 @@ public class SMVstate {
     {
         if (CheckForMapping())
         {
-            string test = "";
-            if (ValidateDataType(test))
+            if (ValidateDataType(typeof(string)))
             {
                 return (string)value;
             }
@@ -274,8 +271,7 @@ public class SMVstate {
     {
         if (CheckForMapping())
         {
-            string test = "";
-            if (ValidateDataType(test))
+            if (ValidateDataType(typeof(bool)))
             {
                 return (bool)value;
             }
@@ -284,11 +280,11 @@ public class SMVstate {
         return (bool)SMV.Instance.GetDefault(DataType);
     }
 
-    private bool ValidateDataType(object val)
+    private bool ValidateDataType(System.Type typeRequested)
     {
-        if (val.GetType() != this.DataType)
+        if (typeRequested != this.DataType)
         {
-            Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": request for value of type " + val.GetType().Name + " doesn't match this link's type of " + DataType.Name + ". Returning default value.");
+            Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": passed type " + typeRequested.Name + " doesn't match this link's type of " + DataType.Name + ". Returning default value.");
             return false;
         }
         return true;

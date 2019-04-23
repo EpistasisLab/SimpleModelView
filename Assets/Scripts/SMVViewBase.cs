@@ -10,7 +10,7 @@ using UnityEngine.UI;
 /// </summary>
 public abstract class SMVviewBase : MonoBehaviour {
 
-    public enum SMVtypeEnum { undefined, toggle, slider, text, inputFieldString, inputFieldFloat, inputFieldInt, textMeshProWorldSpace, textMeshProUGUI };
+    public enum SMVtypeEnum { undefined, toggle, slider, text, inputFieldString, inputFieldFloat, inputFieldInt, textMeshProWorldSpace, textMeshProUGUI, dropdown };
 
     /// <summary> Internal tracking of type of view/UI element.
     /// Not sure what we'll need this for, other than debugging. </summary>
