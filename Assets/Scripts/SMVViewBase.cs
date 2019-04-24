@@ -35,8 +35,8 @@ public abstract class SMVviewBase : MonoBehaviour {
     private UIBehaviour uiElement;
     public UIBehaviour UIelement { protected set { uiElement = value; } get { return uiElement; } }
 
-    /// <summary> The SMVstate that this view belongs too </summary>
-    protected SMVstate parent = null;
+    /// <summary> The SMVcontrol that this view belongs too </summary>
+    protected SMVcontrol parent = null;
 
     bool hasBeenInited;
 
@@ -52,9 +52,9 @@ public abstract class SMVviewBase : MonoBehaviour {
 
     /// <summary> Init this view </summary>
     /// <param name="parent"></param>
-    public void Init(SMVstate parent)
+    public void Init(SMVcontrol parent)
     {
-        //Always set this since it can change if states are reloaded for a scene
+        //Always set this since it can change if controls are reloaded for a scene
         this.parent = parent;
         //Only init once!
         if (hasBeenInited)
@@ -161,10 +161,10 @@ public abstract class SMVviewBase : MonoBehaviour {
     public abstract object GetValueAsObject();
 
     /// <summary> Listener for all derived classes when value changes via UI.
-    /// It validates the value and updates the parent SMVstate </summary>
+    /// It validates the value and updates the parent SMVcontrol </summary>
     public void OnValueChangedListener()
     {
-        //Debug.Log("+ + + SMVViewBase OnValueChangedListener called within view type " + SMVType.ToString() + " and mapping " + mapping.ToString() + " - Current state value before change is " + parent.GetValueAsObject().ToString());
+        //Debug.Log("+ + + SMVViewBase OnValueChangedListener called within view type " + SMVType.ToString() + " and mapping " + mapping.ToString() + " - Current control value before change is " + parent.GetValueAsObject().ToString());
         object val = GetValueAsObject();
         if ( ValidateAndParse(ref val))
         {

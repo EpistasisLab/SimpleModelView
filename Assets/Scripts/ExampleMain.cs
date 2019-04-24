@@ -133,7 +133,7 @@ public class ExampleMain : MonoBehaviour {
         UpdateRotatingTextColor();
 
         //Tell the manager to query the scene and rebuild the list
-        // of states and view mappings. We need to do this since we
+        // of controls and view mappings. We need to do this since we
         // destroyed the old rotatingTextObjects and made new ones, and
         // each contains an SMVViewText component.
         //Normally this only gets called once automatically from SMV.Start during

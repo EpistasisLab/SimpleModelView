@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary> Class the holds the value/state for a model-view mapping, and manages
+/// <summary> Class functions like a controller in MVC paradigm, but for a single value.
+/// It holds the value/state for a model-view mapping, and manages
 ///  the one or more views that are assigned to it. </summary>
-public class SMVstate {
+public class SMVcontrol {
 
     /// <summary> The mapping that this value is tied to </summary>
     private SMVmapping mapping;
@@ -13,7 +14,7 @@ public class SMVstate {
     /// <summary> The views that are associated with the mapping </summary>
     List<SMVviewBase> views;
 
-    /// <summary> Get the number of views mapped to this state </summary>
+    /// <summary> Get the number of views mapped to this control </summary>
     public int Count
     {
         get { return views.Count; }
@@ -33,7 +34,7 @@ public class SMVstate {
     private bool haveWarnedForSetValueNoMapping = false;
 
 	// ctor
-	public SMVstate()
+	public SMVcontrol()
     {
         views = new List<SMVviewBase>();
         this.mapping = SMVmapping.undefined;
@@ -79,7 +80,7 @@ public class SMVstate {
 /*            Canvas canvas = view.GetComponentInParent<Canvas>();
             if( canvas == null)
             {
-                Debug.LogWarning("SMVstate.SetupMappings: found an SMVView that's not within a Canvas object. Skipping. Mapping: " + view.mapping + " Parent: " + view.gameObject.name);
+                Debug.LogWarning("SMVcontrol.SetupMappings: found an SMVView that's not within a Canvas object. Skipping. Mapping: " + view.mapping + " Parent: " + view.gameObject.name);
                 continue;
             }
             */
@@ -87,7 +88,7 @@ public class SMVstate {
             view.Init(this);
 
             //Special handling for noneditable text elements, which are always string, even when used to show numeric values.
-            //Keep track and if no non-Text elements are found, then state type will be string.
+            //Keep track and if no non-Text elements are found, then control type will be string.
             //Ugly.
             if(view.IsUneditableText)
             {
@@ -104,7 +105,7 @@ public class SMVstate {
                 // EXCEPT for Text type (noted and skipped above) which is just for display so works with any type
                 if (view.DataType != dataType)
                 {
-                    Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this state's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
+                    Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried adding view with type of " + view.DataType.Name + ", but doesn't match this control's type of " + dataType.Name + ", for view " + view.SMVType.ToString() + " from game object " + view.UIelement.transform.parent.name + ". Skipping.");
                     continue;
                 }
             }
@@ -115,16 +116,16 @@ public class SMVstate {
         if (!typeIsSet && foundText)
             dataType = typeof(string);
 
-        //Warning if we didn't find any views for this state
+        //Warning if we didn't find any views for this control
         if (Count == 0 && Mapping != SMVmapping.undefined)
         {
-            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views found for this state with mapping " + Mapping);
+            Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": no views found for this control with mapping " + Mapping);
             return;
         }
     }
 
     /// <summary>
-    /// Compare the passed object value with the state's value.
+    /// Compare the passed object value with the control's value.
     /// Return true/false for equal/not-equal
     /// </summary>
     /// <param name="val"></param>
@@ -150,12 +151,12 @@ public class SMVstate {
         {
             return (bool)value == (bool)val;
         }
-        Debug.LogError("IsEqual: val type '" + val.GetType().Name + "' not matched for state date type of '" + DataType.Name + "'");
+        Debug.LogError("IsEqual: val type '" + val.GetType().Name + "' not matched for control date type of '" + DataType.Name + "'");
         return false;
     }
 
     /// <summary>
-    /// Set the value for this state.
+    /// Set the value for this control.
     /// Gets called both from logic side and from UI/view side.
     /// Updates any mapped views and calls the main update handler,
     ///  BUT only if value has changed.
@@ -166,7 +167,7 @@ public class SMVstate {
         if (Count == 0)
         {
             if(!haveWarnedForSetValueNoMapping)
-                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried setting value but no views mapped for this state with mapping " + Mapping + ". You will not receive further warnings.");
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried setting value but no views mapped for this control with mapping " + Mapping + ". You will not receive further warnings.");
             haveWarnedForSetValueNoMapping = true;
             return;
         }
@@ -188,7 +189,7 @@ public class SMVstate {
             }
             else
             {
-                Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match this state's type of " + DataType.Name + ", for mapping " + mapping.ToString() + ". Skipping setting of value.");
+                Debug.LogError(System.Reflection.MethodBase.GetCurrentMethod().Name + ": input with value " + val.ToString() + ", and type of " + val.GetType().Name + ", doesn't match this control's type of " + DataType.Name + ", for mapping " + mapping.ToString() + ". Skipping setting of value.");
                 return;
             }
         }
@@ -221,7 +222,7 @@ public class SMVstate {
         if (Count == 0)
         {
             if (!haveWarnedForGetValueNoMapping)
-                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this state. You won't be warned again.");
+                Debug.LogWarning(System.Reflection.MethodBase.GetCurrentMethod().Name + ": tried getting value no views mapped for this control. You won't be warned again.");
             haveWarnedForGetValueNoMapping = true;
             return false;
         }
@@ -292,7 +293,7 @@ public class SMVstate {
 
     public void DebugDump()
     {
-        Debug.Log("--------- State dump: mapping: " + this.mapping.ToString() + " dataType: " + this.DataType + " and views: ");
+        Debug.Log("--------- control dump: mapping: " + this.mapping.ToString() + " dataType: " + this.DataType + " and views: ");
         if (Count == 0)
         {
             Debug.Log("No views mapped");

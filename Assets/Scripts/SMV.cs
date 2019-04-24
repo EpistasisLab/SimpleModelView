@@ -10,21 +10,25 @@ using System;
 public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 
 /// <summary>
-/// Simple Model-View class.
+/// Main class, a singleton, for simple Model-View-* type behavior.
+/// The main purpose is to make interaction with UI elements simpler and centralized.
+/// The user defines 'mappings' that are used to connect model state variables with UI elements
+/// and event callbacks.
+/// Add an instance of this component to your scene and it will initialize on start in the Initialize() method.
 /// </summary>
 public class SMV : MonoBehaviorSingleton<SMV> {
 
     /// <summary> User should set this to a method in their own code to handle when
-    ///  updates to a state happen, either from logic or UI/view side of things. </summary>
+    ///  updates to a control happen, either from logic or UI/view side of things. </summary>
     public OnUpdateEvent onUpdateEvent;
 
-    /// <summary> Flag to output some debug info, like the state and view-mapping info after initilization  </summary>
+    /// <summary> Flag to output some debug info, like the control and view-mapping info after initilization  </summary>
     public bool doDebugLogging = false;
 
     /// <summary>
-    /// Array of SMVstates, each of which holds a value/state and the view(s) to which it's mapped
+    /// Array of SMVcontrol, each of which holds a value/state and the view(s) to which it's mapped
     /// There will always be one entry for each SMVmapping member.</summary>
-    private SMVstate[] stateArray;
+    private SMVcontrol[] controlArray;
 
 	// Use this for initialization instead of Awake in a MonoBehaviorSingleton object
 	protected override void Initialize () {
@@ -32,28 +36,28 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 	}
 
     /// <summary> Initialize. Go through the scene and find all SMVviewBase components
-    ///  and assign them to their respective SMVstate objects.
-    ///  Can be called as needed to reload all the states and mappings if you're making 
+    ///  and assign them to their respective SMVcontrol objects.
+    ///  Can be called as needed to reload all the controlss and mappings if you're making 
     ///  runtime changes to the UI. 
-    ///  Pass true to set up a new list and new states - typically this will only
-    ///  be done once per scene. Otherwise, states and
+    ///  Pass true to set up a new list and new controls - typically this will only
+    ///  be done once per scene. Otherwise, controls and
     ///  their values are preserved, but scene is still searched to find UI changes.  
     ///  </summary>
     public void SetupForScene(bool initialize = false)
     {
 
         if( initialize)
-            stateArray = new SMVstate[Enum.GetNames(typeof(SMVmapping)).Length];
+            controlArray = new SMVcontrol[Enum.GetNames(typeof(SMVmapping)).Length];
 
-        for(int i = 0; i < stateArray.Length; i++)
+        for(int i = 0; i < controlArray.Length; i++)
         {
             if (initialize)
             {
-                stateArray[i] = new SMVstate();
-                stateArray[i].Init((SMVmapping)i);
+                controlArray[i] = new SMVcontrol();
+                controlArray[i].Init((SMVmapping)i);
             }
             else
-                stateArray[i].SetupMappings();
+                controlArray[i].SetupMappings();
         }
         
         if(doDebugLogging)
@@ -69,7 +73,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <param name="val"></param>
     public void SetValue(SMVmapping mapping, object val)
     {
-        stateArray[(int)mapping].SetValue(val);
+        controlArray[(int)mapping].SetValue(val);
     }
 
     /// <summary>
@@ -80,22 +84,22 @@ public class SMV : MonoBehaviorSingleton<SMV> {
     /// <returns></returns>
     public float GetValueFloat(SMVmapping mapping)
     {
-        return stateArray[(int)mapping].GetValueFloat();
+        return controlArray[(int)mapping].GetValueFloat();
     }
     public int GetValueInt(SMVmapping mapping)
     {
-        return stateArray[(int)mapping].GetValueInt();
+        return controlArray[(int)mapping].GetValueInt();
     }
     public string GetValueString(SMVmapping mapping)
     {
-        return stateArray[(int)mapping].GetValueString();
+        return controlArray[(int)mapping].GetValueString();
     }
     public bool GetValueBool(SMVmapping mapping)
     {
-        return stateArray[(int)mapping].GetValueBool();
+        return controlArray[(int)mapping].GetValueBool();
     }
 
-    /// <summary> Called from states when their value has changed, either from UI or from call from app logic.
+    /// <summary> Called from controls when their value has changed, either from UI or from call from app logic.
     /// Generate an event that's picked up by user's code. </summary>
     /// <param name="mapping"></param>
     public void MappingValueUpdated(SMVmapping mapping)
@@ -120,10 +124,10 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 
     public void DebugDump()
     {
-        Debug.Log("====== SMV states debug ======");
-        foreach (SMVstate state in stateArray)
+        Debug.Log("====== SMVcontrols dump ======");
+        foreach (SMVcontrol control in controlArray)
         {
-            state.DebugDump();
+            control.DebugDump();
         }
     }
 }
