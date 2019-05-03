@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ExampleMain : MonoBehaviour {
+public class ExampleComplex : MonoBehaviour {
 
     //Used by our example code to show some text whose
     // properities we'll change using SMV views and mappings.
