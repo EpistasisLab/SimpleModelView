@@ -986,7 +986,7 @@ GameObject:
   - component: {fileID: 623209436}
   - component: {fileID: 623209435}
   m_Layer: 0
-  m_Name: ExampleMain
+  m_Name: ExampleComplex
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

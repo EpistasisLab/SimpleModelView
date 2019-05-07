@@ -63,7 +63,7 @@ public class ExampleComplex : MonoBehaviour {
     /// </summary>
     public void OnSVMUpdate(SMVmapping mapping)
     {
-        //Log when we get an event for demo purposes, but skipping the TimeLabel update since they're constant
+        //Log when we get an event for demo purposes, but skip the TimeLabel update since they're each frame
         if(mapping != SMVmapping.TimeLabel)
             Debug.Log("*** OnSVMUpdate called with mapping " + mapping.ToString());
 
@@ -76,6 +76,7 @@ public class ExampleComplex : MonoBehaviour {
                 UpdateRotatingTextColor();
                 break;
             default:
+                //ignore this mapping
                 break;
         }
     }

@@ -7,10 +7,10 @@ using UnityEngine;
 /// Usage:
 ///   - declare a new class and use its name as the type 
 ///     public class ExampleSingleton : MonoBehaviorSingleton<ExampleSingleton> {...}
-///   - do NOT use Awake. Instead, use Initialize method
+///   - do NOT use Awake. Instead, use Initialize method.
 ///           protected override void Initialize() {...}
-///   - use it anywhere in code by ref'ing its Instance property
-///     ExampleSingleton.Instance.SomeMethod()
+///   - use it anywhere in code by ref'ing its Instance property.
+///           ExampleSingleton.Instance.SomeMethod()
 ///   - that's it
 /// </summary>
 /// <typeparam name="T"></typeparam>
