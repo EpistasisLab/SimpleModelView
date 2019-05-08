@@ -23,6 +23,9 @@ The `SMVView` types `SMVViewInputFieldFloat` and `SMVViewInputFieldInt` will onl
 
 # Usage
 
+### And the SMView namespace to your scripts
+`using SMView;` 
+
 ### Add the `SMV` singleton component to your project.
 It doesn't matter where you add it. In the examples, it's in a game object called SMV.
 

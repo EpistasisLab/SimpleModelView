@@ -4,32 +4,36 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-/// <summary> An SVMview for a toggle, a checkbox. Stores a bool </summary>
-public class SMVViewToggle : SMVviewBase
+namespace SMView
 {
-    protected override void InitDerived()
+
+    /// <summary> An SVMview for a toggle, a checkbox. Stores a bool </summary>
+    public class SMVViewToggle : SMVviewBase
     {
-        //Find the UI element within this components game object
-        UIelement = transform.GetComponent<Toggle>();
-        if (UIelement == null)
-            Debug.LogError("uiElement == null");
+        protected override void InitDerived()
+        {
+            //Find the UI element within this components game object
+            UIelement = transform.GetComponent<Toggle>();
+            if (UIelement == null)
+                Debug.LogError("uiElement == null");
 
-        //Add the change-listener from base class
-        //Always use the EndEdit event so we don't end up with validation errors while typing
-        (((Toggle)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
+            //Add the change-listener from base class
+            //Always use the EndEdit event so we don't end up with validation errors while typing
+            (((Toggle)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
-        smvtype = SMVtypeEnum.toggle;
-        dataType = typeof(bool);
-    }
+            smvtype = SMVtypeEnum.toggle;
+            dataType = typeof(bool);
+        }
 
-    public override object GetValueAsObject()
-    {
-        //Just return the string object, and validation method will handle the parsing
-        return ((Toggle)UIelement).isOn;
-    }
+        public override object GetValueAsObject()
+        {
+            //Just return the string object, and validation method will handle the parsing
+            return ((Toggle)UIelement).isOn;
+        }
 
-    protected override void SetValueInternal(object val)
-    {
-        ((Toggle)UIelement).isOn = (bool)val;
+        protected override void SetValueInternal(object val)
+        {
+            ((Toggle)UIelement).isOn = (bool)val;
+        }
     }
 }

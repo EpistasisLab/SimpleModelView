@@ -6,6 +6,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 
+namespace SMView
+{
+
 [Serializable]
 public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 
@@ -131,3 +134,5 @@ public class SMV : MonoBehaviorSingleton<SMV> {
         }
     }
 }
+
+}//namespace

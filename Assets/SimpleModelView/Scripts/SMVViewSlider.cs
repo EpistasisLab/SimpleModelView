@@ -4,33 +4,37 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-/// <summary>
-/// An SVMview for a Slider element
-/// </summary>
-public class SMVViewSlider : SMVviewBase
+namespace SMView
 {
 
-    protected override void InitDerived()
+    /// <summary>
+    /// An SVMview for a Slider element
+    /// </summary>
+    public class SMVViewSlider : SMVviewBase
     {
-        //Find the UI element within this components game object
-        UIelement = transform.GetComponent<Slider>();
-        if (UIelement == null)
-            Debug.LogError("uiElement == null");
 
-        //Add the change-listener from base class
-        (((Slider)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
+        protected override void InitDerived()
+        {
+            //Find the UI element within this components game object
+            UIelement = transform.GetComponent<Slider>();
+            if (UIelement == null)
+                Debug.LogError("uiElement == null");
 
-        smvtype = SMVtypeEnum.slider;
-        dataType = typeof(float);
-    }
+            //Add the change-listener from base class
+            (((Slider)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
-    public override object GetValueAsObject()
-    {
-        return ((Slider)UIelement).value;
-    }
+            smvtype = SMVtypeEnum.slider;
+            dataType = typeof(float);
+        }
 
-    protected override void SetValueInternal(object val)
-    {
-        ((Slider)UIelement).value = (float) val;
+        public override object GetValueAsObject()
+        {
+            return ((Slider)UIelement).value;
+        }
+
+        protected override void SetValueInternal(object val)
+        {
+            ((Slider)UIelement).value = (float)val;
+        }
     }
 }

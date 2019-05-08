@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SMView;
 
 public class ExampleBasic : MonoBehaviour {
 
@@ -18,13 +19,8 @@ public class ExampleBasic : MonoBehaviour {
         get { return SMV.Instance.GetValueFloat(SMVmapping.RotationSpeed); }
     }
 
-    //For showing elapsed time
-    private float startTime;
-
 	void Start () {
-        startTime = UnityEngine.Time.time;
-
-        //This will set both the SMVControl (ie value or state) and the SMVView UI element associated with rotation speed
+        //This will set both the SMVControl (ie state value) and the SMVView UI element associated with RotationSpeed mapping.
         RotationSpeed = 0.5f;
 	}
 	

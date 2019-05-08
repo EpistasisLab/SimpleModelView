@@ -4,35 +4,39 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
 
-/// <summary>
-/// An SVMview for a dropdown element, stores and returns current selected dropdown item index number as int.
-/// </summary>
-public class SMVViewDropdown : SMVviewBase
+namespace SMView
 {
-    protected override void InitDerived()
+
+    /// <summary>
+    /// An SVMview for a dropdown element, stores and returns current selected dropdown item index number as int.
+    /// </summary>
+    public class SMVViewDropdown : SMVviewBase
     {
-        //Find the UI element within this components game object
-        UIelement = transform.GetComponent<Dropdown>();
-        if (UIelement == null)
-            Debug.LogError("uiElement == null");
+        protected override void InitDerived()
+        {
+            //Find the UI element within this components game object
+            UIelement = transform.GetComponent<Dropdown>();
+            if (UIelement == null)
+                Debug.LogError("uiElement == null");
 
-        //Add the change-listener from base class
-        //Always use the EndEdit event so we don't end up with validation errors while typing
-        (((Dropdown)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
+            //Add the change-listener from base class
+            //Always use the EndEdit event so we don't end up with validation errors while typing
+            (((Dropdown)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
-        smvtype = SMVtypeEnum.dropdown;
-        dataType = typeof(int);
-    }
+            smvtype = SMVtypeEnum.dropdown;
+            dataType = typeof(int);
+        }
 
-    public override object GetValueAsObject()
-    {
-        //Just return the string object, and validation method will handle the parsing
-        return ((Dropdown)UIelement).value;
-    }
+        public override object GetValueAsObject()
+        {
+            //Just return the string object, and validation method will handle the parsing
+            return ((Dropdown)UIelement).value;
+        }
 
-    protected override void SetValueInternal(object val)
-    {
-        ((Dropdown)UIelement).value = (int)val;
-        ((Dropdown)UIelement).RefreshShownValue();
+        protected override void SetValueInternal(object val)
+        {
+            ((Dropdown)UIelement).value = (int)val;
+            ((Dropdown)UIelement).RefreshShownValue();
+        }
     }
 }
