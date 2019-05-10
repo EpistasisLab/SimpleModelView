@@ -5,17 +5,17 @@ using UnityEngine;
 namespace SMView
 {
 
-    /// <summary> Class functions like a controller in MVC paradigm, but for a single value.
+    /// <summary> Class functions somehwat like a controller in MVC paradigm, but for a single value.
     /// It holds the value/state for a model-view mapping, and manages
     ///  the one or more views that are assigned to it. </summary>
     public class SMVcontrol
     {
 
-        /// <summary> The mapping that this value is tied to </summary>
+        /// <summary> The mapping that this value is assigned to </summary>
         private SMVmapping mapping;
         public SMVmapping Mapping { get { return mapping; } }
 
-        /// <summary> The views that are associated with the mapping </summary>
+        /// <summary> The SMVviews that are associated with the mapping </summary>
         List<SMVviewBase> views;
 
         /// <summary> Get the number of views mapped to this control </summary>
@@ -25,14 +25,20 @@ namespace SMView
         }
 
         /// <summary> The data type this link uses. i.e. the data type used for setting and returned by getting value.
-        /// All views that this link contains, i.e. all view that use the same mapping, must use same data type as well.</summary>
+        /// All views that this link contains, i.e. all view that use the same mapping, must use same data type as well,
+        /// or be able to handle conversion from any type (e.g. read-only Text element).</summary>
         private System.Type dataType;
         public System.Type DataType { get { return dataType; } }
 
         /// <summary> The current value </summary>
         private object value;
 
-        /// <summary> Flag to track if we've warned about get or set value attempts that
+        /// <summary>
+        /// The event from the main SMV instance, for invoking an event from this class.
+        /// </summary>
+        private SMView.OnUpdateEvent onUpdateEvent;
+
+        /// <summary> Flags to track if we've warned about get or set value attempts that
         /// fail because there are no views mapped. </summary>
         private bool haveWarnedForGetValueNoMapping = false;
         private bool haveWarnedForSetValueNoMapping = false;
@@ -45,20 +51,22 @@ namespace SMView
             value = null;
         }
 
-        /// <summary> Initialize a new instance. This will reset value to default. </summary>
-        /// <param name="mapping"></param>
-        public void Init(SMVmapping mapping)
+        /// <summary> Initialize a new instance with the passed mapping. 
+        /// **NOTE** This will reset value to default. </summary>
+        public void Init(SMVmapping mapping, SMView.OnUpdateEvent updateEvent)
         {
             this.mapping = mapping;
             SetupMappings();
             //if(mapping != SMVmapping.undefined)
             //    SetValue(SMV.Instance.GetDefault(DataType));
             value = SMV.Instance.GetDefault(DataType);
+            onUpdateEvent = updateEvent;
         }
 
         /// <summary>
-        /// Search for and setup mappings to views. Does not change the
-        /// current value, so can be called when UI changes but you want
+        /// Search for SMVView* components that are assigned to the same
+        /// mapping as this control, and set them up. Does not change the
+        /// current state value, so can be called when UI changes but you want
         /// to preserve value.
         /// </summary>
         public void SetupMappings()
@@ -80,14 +88,6 @@ namespace SMView
                     continue;
                 }
 
-                //Check that the view is part of a canvas. If not, skip it.
-                /*            Canvas canvas = view.GetComponentInParent<Canvas>();
-                            if( canvas == null)
-                            {
-                                Debug.LogWarning("SMVcontrol.SetupMappings: found an SMVView that's not within a Canvas object. Skipping. Mapping: " + view.mapping + " Parent: " + view.gameObject.name);
-                                continue;
-                            }
-                            */
                 //We've got a match
                 view.Init(this);
 
@@ -212,7 +212,7 @@ namespace SMView
             }
 
             //Invoke event for the optional update handler
-            SMV.Instance.MappingValueUpdated(mapping);
+            onUpdateEvent.Invoke(mapping);
         }
 
         /// <summary> Return the current value as generic object type </summary>
