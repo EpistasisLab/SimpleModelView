@@ -43,8 +43,9 @@ namespace SMView
             return ((InputField)UIelement).text;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
+            //Change all input to string
             ((InputField)UIelement).text = val.ToString();
         }
     }

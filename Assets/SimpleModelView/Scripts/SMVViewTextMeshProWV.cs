@@ -41,7 +41,7 @@ namespace SMView
             return ((TextMeshPro)UIelement).text;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
             string txt;
             if (val.GetType() == typeof(float))

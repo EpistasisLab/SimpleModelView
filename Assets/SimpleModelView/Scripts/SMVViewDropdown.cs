@@ -20,7 +20,6 @@ namespace SMView
                 Debug.LogError("uiElement == null");
 
             //Add the change-listener from base class
-            //Always use the EndEdit event so we don't end up with validation errors while typing
             (((Dropdown)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
             smvtype = SMVtypeEnum.dropdown;
@@ -29,11 +28,11 @@ namespace SMView
 
         public override object GetValueAsObject()
         {
-            //Just return the string object, and validation method will handle the parsing
+            //Just return as object, and validation method will handle the parsing
             return ((Dropdown)UIelement).value;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
             ((Dropdown)UIelement).value = (int)val;
             ((Dropdown)UIelement).RefreshShownValue();

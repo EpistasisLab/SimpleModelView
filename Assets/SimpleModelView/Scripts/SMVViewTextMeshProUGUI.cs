@@ -9,7 +9,7 @@ namespace SMView
 {
 
     /// <summary>
-    /// An SVMview for a UI TextMeshPro (for UI text in a canvas, different than TextMeshProWV for world-view) element. It's display-only, can't be edited, so simpler than others.
+    /// An SVMview for a UI TextMeshPro (used for UI text in a canvas, different than TextMeshProWV for world-view) element. It's display-only, can't be edited, so simpler than others.
     /// It can accept any type that has ToString() method, and has decimal formatting option for floats.
     /// </summary>
     public class SMVViewTextMeshProUGUI : SMVviewBase
@@ -41,7 +41,7 @@ namespace SMView
             return ((TextMeshProUGUI)UIelement).text;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
             string txt;
             if (val.GetType() == typeof(float))

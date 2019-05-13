@@ -32,7 +32,7 @@ namespace SMView
             return ((Slider)UIelement).value;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
             ((Slider)UIelement).value = (float)val;
         }

@@ -18,7 +18,6 @@ namespace SMView
                 Debug.LogError("uiElement == null");
 
             //Add the change-listener from base class
-            //Always use the EndEdit event so we don't end up with validation errors while typing
             (((Toggle)UIelement).onValueChanged).AddListener(delegate { OnValueChangedListener(); });
 
             smvtype = SMVtypeEnum.toggle;
@@ -31,7 +30,7 @@ namespace SMView
             return ((Toggle)UIelement).isOn;
         }
 
-        protected override void SetValueInternal(object val)
+        protected override void SetValueDerived(object val)
         {
             ((Toggle)UIelement).isOn = (bool)val;
         }

@@ -162,7 +162,7 @@ namespace SMView
         /// <summary>
         /// Set the value for this control.
         /// Gets called both from logic side and from UI/view side.
-        /// Updates any mapped views and calls the main update handler,
+        /// Updates any mapped views, and then calls the main update handler,
         ///  BUT only if value has changed.
         /// </summary>
         /// <param name="val"></param>
