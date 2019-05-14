@@ -8,7 +8,21 @@ It creates a simple paradigm for:
 
 ### Getting Started
 
-Clone this project and import the SimpleModelView folder into your Unity project.
+#### Unity Version
+Developed under Unity 2018.2
+
+#### Installation
+
+Clone this project and copy the Assets/SimpleModelView folder into your Unity project.
+
+##### Unity 2018 and TextMeshPro
+When you load the ExampleComplex scene, you'll be prompted to load TextMeshPro into the project - that's fine. However the transform for the example `RotationSpeed_TextMeshProWorldSpace` gets messed up, but don't worry about that for demo purposes.
+
+##### Unity 2017 and earlier
+You'll need to either:
+
+- remove the two source files that use TextMeshPro (_SMVViewTextMeshProUGUI_ and _SMVViewTextMeshProWV_) and ignore the warnings in the example scene
+- or, get TextMeshPro and add it to your project
 
 # Concepts
 

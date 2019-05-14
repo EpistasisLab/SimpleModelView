@@ -128,7 +128,7 @@ public class SMV : MonoBehaviorSingleton<SMV> {
 
     public void DebugDump()
     {
-        Debug.Log("====== SMVcontrols dump ======");
+        Debug.Log("====== SMV version " + SMVversion.String + " == SMVcontrols dump ======");
         foreach (SMVcontrol control in controlArray)
         {
             control.DebugDump();

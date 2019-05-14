@@ -2319,7 +2319,7 @@ GameObject:
   - component: {fileID: 1120551420}
   - component: {fileID: 1120551419}
   m_Layer: 5
-  m_Name: Text
+  m_Name: label2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2931,7 +2931,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: OnUpdateEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: SMView.OnUpdateEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   doDebugLogging: 0
 --- !u!4 &1523398362
