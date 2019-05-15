@@ -10,6 +10,6 @@ namespace SMView
     /// </summary>
     static class SMVversion
     {
-        public static string String = "0.1.0";
+        public static string String = "0.1.1";
     }
 }

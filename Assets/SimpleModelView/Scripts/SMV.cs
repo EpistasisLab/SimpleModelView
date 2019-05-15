@@ -27,7 +27,7 @@ public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 /// This is the main class, a singleton. It provides the interface for users.
 /// Add an instance of this component to your scene and it will initialize on program start in the Initialize() method.
 /// </summary>
-public class SMV : MonoBehaviorSingleton<SMV> {
+public class SMV : SMView.MonoBehaviorSingleton<SMV> {
 
     /// <summary> OPTIONAL - use the editor to assign a listener within your own code to handle
     ///  updates to an SMVcontrol state/value, either from logic or UI/view side of things. </summary>

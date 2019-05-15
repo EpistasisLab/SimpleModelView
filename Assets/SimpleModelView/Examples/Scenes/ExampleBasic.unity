@@ -1479,7 +1479,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: SMView.OnUpdateEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
-  doDebugLogging: 1
+  doDebugLogging: 0
 --- !u!4 &1523398362
 Transform:
   m_ObjectHideFlags: 0
