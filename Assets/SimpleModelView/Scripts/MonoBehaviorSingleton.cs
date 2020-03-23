@@ -84,6 +84,11 @@ namespace SMView
                 instance = null;
         }
 
+        /// <summary>
+        /// Getter for Instance that's short for less verbose code!
+        /// </summary>
+        public static T I { get { return Instance; } }
+
         public static T Instance
         {
             get

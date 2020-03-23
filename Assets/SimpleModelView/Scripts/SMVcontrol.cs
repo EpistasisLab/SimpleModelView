@@ -58,8 +58,8 @@ namespace SMView
             this.mapping = mapping;
             SetupMappings();
             //if(mapping != SMVmapping.undefined)
-            //    SetValue(SMV.Instance.GetDefault(DataType));
-            value = SMV.Instance.GetDefault(DataType);
+            //    SetValue(SMV.I.GetDefault(DataType));
+            value = SMV.I.GetDefault(DataType);
             onUpdateEvent = updateEvent;
         }
 
@@ -215,6 +215,22 @@ namespace SMView
             onUpdateEvent.Invoke(mapping);
         }
 
+        /// <summary>
+        /// Pass an object containing ui-specific special item.
+        /// Each view will check for proper type and convert, and ignore if not proper.
+        /// e.g. for Dropdown UI, this is list of items to populate the dropdown
+        /// </summary>
+        /// <param name="options"></param>
+        public void SetSpecial(object obj)
+        {
+            //Update each UI element
+            foreach (SMVviewBase view in views)
+            {
+                view.SetSpecial(obj);
+            }
+        }
+
+
         /// <summary> Return the current value as generic object type </summary>
         public object GetValueAsObject()
         {
@@ -243,7 +259,7 @@ namespace SMView
                 }
 
             }
-            return (float)SMV.Instance.GetDefault(DataType);
+            return (float)SMV.I.GetDefault(DataType);
         }
 
         public int GetValueInt()
@@ -256,7 +272,7 @@ namespace SMView
                 }
             }
 
-            return (int)SMV.Instance.GetDefault(DataType);
+            return (int)SMV.I.GetDefault(DataType);
         }
 
         public string GetValueString()
@@ -269,7 +285,7 @@ namespace SMView
                 }
             }
 
-            return (string)SMV.Instance.GetDefault(DataType);
+            return (string)SMV.I.GetDefault(DataType);
         }
 
         public bool GetValueBool()
@@ -282,7 +298,7 @@ namespace SMView
                 }
             }
 
-            return (bool)SMV.Instance.GetDefault(DataType);
+            return (bool)SMV.I.GetDefault(DataType);
         }
 
         private bool ValidateDataType(System.Type typeRequested)
