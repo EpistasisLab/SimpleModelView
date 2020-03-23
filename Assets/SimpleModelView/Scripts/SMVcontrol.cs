@@ -230,6 +230,19 @@ namespace SMView
             }
         }
 
+        /// <summary> See SMV.GetSpecial </summary>
+        /// <returns>object that must be cast to appropriate type</returns>
+        public object GetSpecial(GetSpecialCodes code)
+        {
+            foreach(SMVviewBase view in views)
+            {
+                object result = view.GetSpecial(code);
+                //We simply return the first non-null result we get
+                if (result != null)
+                    return result;
+            }
+            return null;
+        }
 
         /// <summary> Return the current value as generic object type </summary>
         public object GetValueAsObject()
@@ -237,6 +250,8 @@ namespace SMView
             return value;
         }
 
+        /// <summary> Check that this control has at least one mapped view </summary>
+        /// <returns></returns>
         private bool CheckForMapping()
         {
             if (Count == 0)

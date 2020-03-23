@@ -111,6 +111,13 @@ namespace SMView
             //Be default, do nothing.
         }
 
+        /// <summary> See SMV.GetSpecial. Derived classes must override if they have something special to return </summary>
+        public virtual object GetSpecial(GetSpecialCodes code)
+        {
+            //Return null by default
+            return null;
+        }
+
         /// <summary>
         /// Check the passed value to see that its data type matches that of the view's data type.
         /// For textual-class views, if we get a string for a non-string textual-class view, attempt to parse it into the appropriate

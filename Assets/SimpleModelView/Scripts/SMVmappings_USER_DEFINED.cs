@@ -16,7 +16,7 @@ namespace SMView
     /// install a new version of SimpleModelView, it won't overwrite your changes.
     /// 
     /// </summary>
-    public enum SMVmapping { undefined/*always include this*/, RotationSpeed, TimeLabel, TimeLabelUpdate, RotatingText, RotatingTextCount, TextColor };
+    public enum SMVmapping { undefined/*always include this*/, RotationSpeed, TimeLabel, TimeLabelUpdate, RotatingText, RotatingTextCount, TextColor, ChosenTextColorLabel };
 
 
 }

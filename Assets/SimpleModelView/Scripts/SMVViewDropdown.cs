@@ -57,5 +57,18 @@ namespace SMView
             else
                 Debug.LogError("SMVViewDropdown.SetOptions: type does not match: " + options.GetType().ToString());
         }
+
+        /// <summary> Return something special, matching the code for what's been requested </summary>
+        public override object GetSpecial(GetSpecialCodes code)
+        {
+            switch (code)
+            {
+                //The text of currently-selected item
+                case GetSpecialCodes.Dropdown_Current_Option_String:
+                    return ((Dropdown)UIelement).options[((Dropdown)UIelement).value].text;
+                default:
+                    return null;
+            }
+        }
     }
 }

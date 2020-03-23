@@ -21,38 +21,50 @@ public class ExampleComplex : MonoBehaviour {
     //  by adding an event handler to the main SMV object in the editor.
     public float RotationSpeed
     {
-        set { SMV.Instance.SetValue(SMVmapping.RotationSpeed, value);  }
-        get { return SMV.Instance.GetValueFloat(SMVmapping.RotationSpeed); }
+        set { SMV.I.SetValue(SMVmapping.RotationSpeed, value);  }
+        get { return SMV.I.GetValueFloat(SMVmapping.RotationSpeed); }
     }
 
     public string RotatingText
     {
-        set { SMV.Instance.SetValue(SMVmapping.RotatingText, value); }
-        get { return SMV.Instance.GetValueString(SMVmapping.RotatingText); }
+        set { SMV.I.SetValue(SMVmapping.RotatingText, value); }
+        get { return SMV.I.GetValueString(SMVmapping.RotatingText); }
     }
 
     public int RotatingTextCount
     {
-        set { SMV.Instance.SetValue(SMVmapping.RotatingTextCount, value); }
-        get { return SMV.Instance.GetValueInt(SMVmapping.RotatingTextCount); }
+        set { SMV.I.SetValue(SMVmapping.RotatingTextCount, value); }
+        get { return SMV.I.GetValueInt(SMVmapping.RotatingTextCount); }
     }
 
     public float TimeElapsed
     {
-        set { SMV.Instance.SetValue(SMVmapping.TimeLabel, value); }
-        get { return SMV.Instance.GetValueFloat(SMVmapping.TimeLabel); }
+        set { SMV.I.SetValue(SMVmapping.TimeLabel, value); }
+        get { return SMV.I.GetValueFloat(SMVmapping.TimeLabel); }
     }
 
     public bool TimeElapsedDoUpdate
     {
-        set { SMV.Instance.SetValue(SMVmapping.TimeLabelUpdate, value); }
-        get { return SMV.Instance.GetValueBool(SMVmapping.TimeLabelUpdate);  }
+        set { SMV.I.SetValue(SMVmapping.TimeLabelUpdate, value); }
+        get { return SMV.I.GetValueBool(SMVmapping.TimeLabelUpdate);  }
     }
 
+    /// <summary> Get the index of the currently selected text color dropdown item </summary>
     public int TextColorIndex
     {
-        set { SMV.Instance.SetValue(SMVmapping.TextColor, value); }
-        get { return SMV.Instance.GetValueInt(SMVmapping.TextColor); }
+        set { SMV.I.SetValue(SMVmapping.TextColor, value); }
+        get { return SMV.I.GetValueInt(SMVmapping.TextColor); }
+    }
+
+    /// <summary> Get the string name of the currently selected text color dropdown item </summary>
+    public string TextColorName
+    {
+        get { return (string) SMV.I.GetSpecial(SMVmapping.TextColor, GetSpecialCodes.Dropdown_Current_Option_String); }
+    }
+
+    public string ChosenTextColorLabel
+    {
+        set { SMV.I.SetValue(SMVmapping.ChosenTextColorLabel, TextColorName); }
     }
 
     //////////////////////////////////////////////////
@@ -147,11 +159,27 @@ public class ExampleComplex : MonoBehaviour {
     //Set the color of text objects using the mapped SMVView
     private void UpdateRotatingTextColor()
     {
+        Debug.Log("Selected color: " + TextColorName);
+        ChosenTextColorLabel = TextColorName;
+
         for (int i = 0; i < rotatingTextObjects.Length; i++)
         {
-            Color newColor = TextColorIndex == 0 ? Color.red : TextColorIndex == 1 ? Color.magenta : Color.blue;
-            rotatingTextObjects[i].GetComponent<Text>().color = newColor;
+            //Do this if you want to get set color via the dropdown index
+            //Color newColor = TextColorIndex == 0 ? Color.red : TextColorIndex == 1 ? Color.magenta : Color.blue;
+            //rotatingTextObjects[i].GetComponent<Text>().color = newColor;
+
+            Color color = (Color)typeof(Color).GetProperty(TextColorName.ToLower()).GetValue(null, null);
+            rotatingTextObjects[i].GetComponent<Text>().color = color == null ? Color.black : color;
+
         }
+    }
+
+    /// <summary> This shows how to change options in a dropdown </summary>
+    public void ChangeColorChoices()
+    {
+        List<string> newColors = new List<string>() { "Black", "Green", "Yellow" };
+        //Note that this will also accept a List of DropdownOptions
+        SMV.I.SetSpecial(SMVmapping.TextColor, newColors);
     }
 
     public void Preset1()

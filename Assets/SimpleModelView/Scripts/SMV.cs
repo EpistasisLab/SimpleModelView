@@ -23,6 +23,9 @@ namespace SMView
 [Serializable]
 public class OnUpdateEvent : UnityEvent<SMVmapping> { }
 
+/// <summary> Codes used by GetSpecial </summary>
+public enum GetSpecialCodes { Undefined, Dropdown_Current_Option_String };
+
 /// <summary>
 /// This is the main class, a singleton. It provides the interface for users.
 /// Add an instance of this component to your scene and it will initialize on program start in the Initialize() method.
@@ -94,10 +97,22 @@ public class SMV : SMView.MonoBehaviorSingleton<SMV> {
     /// Each view will check for proper type and convert, and ignore if not proper.
     /// e.g. for Dropdown UI, this is list of items to populate the dropdown
     /// </summary>
-    /// <param name="options"></param>
     public void SetSpecial(SMVmapping mapping, object obj)
     {
         controls[(int)mapping].SetSpecial(obj);
+    }
+
+    /// <summary> Get something other than the usual value.
+    /// e.g. for dropdowns, can get the string with the currently selected option.
+    /// It's up to the called SMView type to recognize the code and return the object.
+    /// If more than one matches exist for the mapping, only the first is returned.
+    /// Calling function must cast to appropriate type.</summary>
+    /// <param name="mapping">The mapping to get from</param>
+    /// <param name="code">The code saying what we want. Is matched only by specific SMView types</param>
+    /// <returns>null if no match is made</returns>
+    public object GetSpecial(SMVmapping mapping, GetSpecialCodes code)
+    {
+        return controls[(int)mapping].GetSpecial(code);
     }
 
     /// <summary>
